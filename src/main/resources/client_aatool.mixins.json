@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ca.fxco.client_aatool.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "ClientAdvancementManager_saveMixin",
+    "ClientPlayerEntity_clientCommandsMixin",
+    "ClientPlayNetworkHandler_clientCommandsMixin",
+    "ClientPlayNetworkHandler_saveMixin",
+    "MinecraftClient_serverChangeMixin",
+    "StatHandlerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

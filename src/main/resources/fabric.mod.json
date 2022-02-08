@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "client_aatool",
+  "version": "${version}",
+  "name": "Client AATool",
+  "description": "A client-side fabric mod which allows you to use AATool on servers without FTP access",
+  "authors": [
+    "FX - PR0CESS"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/client_aatool/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ca.fxco.client_aatool.ClientAATool"
+    ]
+  },
+  "mixins": [
+    "client_aatool.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.13.1",
+    "minecraft": "1.18.x"
+  }
+}
