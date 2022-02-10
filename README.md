@@ -1,4 +1,4 @@
-# ClientAATool
+# Client AATool
 #### A client-side fabric mod which allows you to use [AATool](https://github.com/DarwinBaker/AATool) on servers without FTP access
 
 ---
@@ -15,7 +15,7 @@ You need to run this command every time you restart your client, this is so you 
 
 It should look something like: `C:\Users\<username>\AppData\Roaming\.minecraft\client_aatool`
 
-## How does the mod work?
+## How does this mod work?
 It's actually pretty simple. The client receives the information that would normally be in the save files through packets.
 We basically intercept the packets and write the data into a file in the format that AATool would recognize.
 
