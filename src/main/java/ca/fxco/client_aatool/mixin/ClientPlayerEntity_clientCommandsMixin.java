@@ -11,15 +11,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.regex.Pattern;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntity_clientCommandsMixin {
+public class ClientPlayerEntity_clientCommandsMixin {
 
 
     @Inject(
             at = @At("HEAD"),
-            method = "sendChatMessage",
+            method = "sendChatMessage(Ljava/lang/String;)V",
             cancellable = true
     )
-    public void onSendChatMessage(String message, CallbackInfo ci) {
+    private void onSendChatMessage(String message, CallbackInfo ci) {
         if (message.startsWith("/")) {
             StringReader reader = new StringReader(message);
             reader.skip();
