@@ -5,12 +5,11 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.text.LiteralText;
 
 import java.io.File;
 import java.util.Collection;
@@ -26,45 +25,47 @@ public class ClientCommands {
 
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
         LiteralArgumentBuilder<ServerCommandSource> builder = literal(PREFIX)
-                .requires((s) -> !mc.isIntegratedServerRunning())
                 .then(literal("clear").executes(ClientCommands::clearCommand))
                 .then(CommandManager.argument("toggle", BoolArgumentType.bool())
-                        .executes(ClientCommands::toggleCommand))
-                .executes(ClientCommands::toggleCommand);
+                        .executes(c -> toggleCommand(c,true)))
+                .executes(c -> toggleCommand(c,false));
         dispatcher.register(builder);
     }
 
-    public static int toggleCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Boolean state = tryGet(
-                () -> BoolArgumentType.getBool(context,"toggle"),
-                null
-        );
-        ServerCommandSource source = context.getSource();
-        if (state == null) {
-            String str = ClientAATool.shouldLog ? "enabled" : "disabled";
-            source.sendFeedback(Text.of("ClientAATool is current: "+str),false);
+    public static int toggleCommand(CommandContext<ServerCommandSource> context, boolean toggle) {
+        if (mc.isIntegratedServerRunning()) {
+            sendToPlayer("Client_AATool can only be used on servers");
+            return 0;
+        }
+        if (!toggle) {
+            sendToPlayer("ClientAATool is current: "+(ClientAATool.shouldLog ? "enabled" : "disabled"));
         } else {
+            boolean state = BoolArgumentType.getBool(context,"toggle");
             ClientAATool.shouldLog = state;
             if (mc.getCurrentServerEntry() != null) ClientAATool.servers.put(mc.getCurrentServerEntry().address,state);
-            String str = state ? "enabled" : "disabled";
-            source.sendFeedback(Text.of("ClientAATool is now: "+str),false);
+            sendToPlayer("ClientAATool is now: "+(state ? "enabled" : "disabled"));
         }
         return 1;
     }
 
-    public static int clearCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int clearCommand(CommandContext<ServerCommandSource> context) {
         File server = new File(mc.runDirectory, "client_aatool/server");
-        ServerCommandSource source = context.getSource();
         if (server.exists()) {
             if (server.delete()) {
-                source.sendFeedback(Text.of("Cleared ClientAATool Files"),false);
+                sendToPlayer("Cleared ClientAATool Files");
             } else {
-                source.sendFeedback(Text.of("Unable to clear ClientAATool Files!"), false);
+                sendToPlayer("Unable to clear ClientAATool Files!");
             }
         } else {
-            source.sendFeedback(Text.of("ClientAATool Files are already cleared!"),false);
+            sendToPlayer("ClientAATool Files are already cleared!");
         }
         return 1;
+    }
+
+    public static void sendToPlayer(String str) {
+        if (mc.player != null) {
+            mc.player.sendMessage(new LiteralText(str), false);
+        }
     }
 
     public static boolean isClientSideCommand(String[] args) {
@@ -72,17 +73,18 @@ public class ClientCommands {
     }
 
     public static void executeCommand(StringReader reader) {
-        ClientPlayerEntity player = mc.player;
+        ClientPlayerEntity p = mc.player;
         try {
-            player.networkHandler.getCommandDispatcher().execute(reader, new FakeCommandSource(player));
+            if (p != null) p.networkHandler.getCommandDispatcher().execute(reader, new FakeCommandSource(p));
         } catch (Exception e) {
             ClientAATool.LOGGER.error("An issue has happened while attempting to execute client command!",e);
         }
     }
 
     public static class FakeCommandSource extends ServerCommandSource {
-        public FakeCommandSource(ClientPlayerEntity p) {
-            super(p, p.getPos(), p.getRotationClient(), null, 0, p.getEntityName(), p.getName(), null, p);
+        public FakeCommandSource(ClientPlayerEntity player) {
+            super(player, player.getPos(), player.getRotationClient(), null, 0, player.getEntityName(),
+                    player.getName(), null, player);
         }
 
         public Collection<String> getPlayerNames() {
@@ -91,19 +93,6 @@ public class ClientCommands {
                     .stream()
                     .map(e -> e.getProfile().getName())
                     .collect(Collectors.toList());
-        }
-    }
-
-    @FunctionalInterface
-    public interface SupplierWithException<T> {
-        T get() throws CommandSyntaxException;
-    }
-
-    public static <T> T tryGet(SupplierWithException<T> a, T defaultValue) throws CommandSyntaxException {
-        try {
-            return a.get();
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
         }
     }
 }
