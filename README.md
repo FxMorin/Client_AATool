@@ -8,6 +8,8 @@ Follow instructions on how to install fabric mods [here](https://fabricmc.net/us
 To use the mod, simple run `/aatool true` when on a server, and the mod will make a fake directory that can be used for [AATool](https://github.com/DarwinBaker/AATool)
 You need to run this command every time you restart your client, this is so you don't forget that it's running!
 
+Make sure you are running minecraft in Admin Mode if the folder is not being created
+
 ### Setting up AATool
 1. When opening AATool, head over to settings (*Bottom Left corner*)
 2. You will see `Local Save Folder` Select `Use Custom Save Folder`
