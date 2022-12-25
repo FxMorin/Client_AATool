@@ -20,13 +20,13 @@ public class ClientPlayerEntity_clientCommandsMixin {
             method = "sendCommand(Ljava/lang/String;Lnet/minecraft/text/Text;)V",
             cancellable = true
     )
-    private void onSendCommand(String message, Text text, CallbackInfo ci) {
-        if (message.startsWith("/")) {
-            StringReader reader = new StringReader(message);
+    private void onSendCommand(String command, Text text, CallbackInfo ci) {
+        if (command.startsWith("/")) {
+            StringReader reader = new StringReader(command);
             reader.skip();
             int cursor = reader.getCursor();
             reader.setCursor(cursor);
-            if (ClientCommands.isClientSideCommand(message.substring(1).split(Pattern.quote(" ")))) {
+            if (ClientCommands.isClientSideCommand(command.substring(1).split(Pattern.quote(" ")))) {
                 ClientCommands.executeCommand(reader);
                 ci.cancel();
             }
