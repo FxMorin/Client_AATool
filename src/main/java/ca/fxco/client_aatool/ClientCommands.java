@@ -9,7 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 import java.io.File;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class ClientCommands {
 
     public static void sendToPlayer(String str) {
         if (mc.player != null) {
-            mc.player.sendMessage(new LiteralText(str), false);
+            mc.player.sendMessage(Text.of(str), false);
         }
     }
 
