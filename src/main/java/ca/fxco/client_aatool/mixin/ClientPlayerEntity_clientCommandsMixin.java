@@ -21,15 +21,12 @@ public class ClientPlayerEntity_clientCommandsMixin {
             cancellable = true
     )
     private void onSendCommand(String command, Text text, CallbackInfo ci) {
-        if (command.startsWith("/")) {
             StringReader reader = new StringReader(command);
-            reader.skip();
             int cursor = reader.getCursor();
             reader.setCursor(cursor);
-            if (ClientCommands.isClientSideCommand(command.substring(1).split(Pattern.quote(" ")))) {
+            if (ClientCommands.isClientSideCommand(command.split(Pattern.quote(" ")))) {
                 ClientCommands.executeCommand(reader);
                 ci.cancel();
             }
         }
-    }
 }
